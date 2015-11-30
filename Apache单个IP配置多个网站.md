@@ -39,5 +39,5 @@ Apache单个IP配置多个网站
     ErrorLog "logs/crm2-error_log"
     CustomLog "logs/crm2_log" common
 	</VirtualHost>
-
+3.最后,执行 /opt/lampp/lampp  reloadapache。
 **坑：配制虚拟机的时候，一直object not found。后来查找是路径后面出现了乱码～。**
