@@ -7,13 +7,15 @@ Apache单个IP配置多个网站
 ##前提
 #####开启虚拟机
 在apache配置文件http.conf中找到配置项
-		
-		# Virtual hosts                                                                                                         
-    	#Include /Applications/XAMPP/etc/extra/httpd-vhosts.conf  
-修改为
 
-	    # Virtual hosts                                                                                                         
-    	Include /Applications/XAMPP/etc/extra/httpd-vhosts.conf  
+	#Virtual hosts                         
+	#Include /Applications/XAMPP/etc/extra/httpd-vhosts.conf`
+    
+修改为	
+
+        #Virtual hosts                                                                     
+    	Include /Applications/XAMPP/etc/extra/httpd-vhosts.conf 
+    	 
 ##具体操作步骤
 1.打开apache配置文件，路径/opt/lamp/etc/http.conf。新增端口:
 	
