@@ -13,7 +13,7 @@ Apache单个IP配置多个网站
     
 修改为	
 
-        #Virtual hosts                                                                     
+        #Virtual hosts
     	Include /Applications/XAMPP/etc/extra/httpd-vhosts.conf 
     	 
 ##具体操作步骤
