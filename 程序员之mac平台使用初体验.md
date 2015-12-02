@@ -23,6 +23,8 @@
 	1. svn OS自带, 在terminal中输出svn，os会自动提示安装
 	2. github [github for mac](https://desktop.github.com/) 
 * 印象笔记(一直在使用，强烈推荐),**[马克飞象](https://maxiang.io/basic)支持印象笔记版的Markdown，据说已经开始收费。具体还没试过**。
+* 虚拟机 [Vmware fusion 8 Pro](http://www.jb51.net/softs/377756.html#down)
+* 解压/压缩 [Entropy 1.5.6](http://www.macgg.com/archives/12962.html)
 * Markdown编辑器
    1. [Mou](http://25.io/mou/) *正在使用，感觉比较简单*
    2. [Macdown](http://macdown.uranusjr.com/) *对Mou的扩展，功能比较多，暂未体验。这里仅作备注。*
