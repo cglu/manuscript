@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><title>ssh免密码登陆</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-29" class="wmd-preview-section preview-content">
+
+<p></p>
+
+</div><div id="wmd-preview-section-125" class="wmd-preview-section preview-content">
+
+<h1 id="ssh免密码登陆">ssh免密码登陆</h1>
+
+<blockquote>
+  <p>最近在开发服务器上进行开发、免不了要频繁的登陆到开发服务器去。每次都要输入密码之类的。很繁琐、今天准备建立ssh密钥来解决这个问题。</p>
+</blockquote>
+
+</div><div id="wmd-preview-section-870" class="wmd-preview-section preview-content">
+
+<h3 id="环境">环境</h3>
+
+<p>A为自己的Mac Book(用户控制其他主机的机器) <br>
+B为远程主机(开发使用的服务器)，假如IP地址为luhu.in</p>
+
+<ol start="1"><li rel="1">在A机器下生成公钥/私钥对。</li>
+</ol>
+
+</div><div id="wmd-preview-section-1452" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs stata"><span class="hljs-keyword">cd</span> ~ <span class="hljs-comment">//进入用户目录</span><br><span class="hljs-keyword">mkdir</span> temp <span class="hljs-comment">//创建临时文件夹  </span><br><span class="hljs-keyword">cd</span> temp  <span class="hljs-comment">//进入临时文件夹</span><br>ssh-keygen -t rsa   <span class="hljs-comment">//生成密钥对</span><br>Generating public/private rsa key pair.<br>Enter <span class="hljs-keyword">file</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">which</span> to <span class="hljs-keyword">save</span> the key (/Users/luhu/.ssh/id_rsa):   <span class="hljs-comment">//输入存放密钥的地址，可以不输入</span><br>Enter passphrase (empty <span class="hljs-keyword">for</span> <span class="hljs-keyword">no</span> passphrase): <span class="hljs-comment">//输入谜语 可以为空</span><br>Enter same passphrase again:  <span class="hljs-comment">//确认密语</span><br>Your identification has been saved <span class="hljs-keyword">in</span> /Users/luhu/temp/id_rsa.  <span class="hljs-comment">//生成私钥</span><br>Your public key has been saved <span class="hljs-keyword">in</span> /Users/luhu/temp/id_rsa.pub. <span class="hljs-comment">//生成公钥</span><br>The key fingerprint is:<br>SHA256:mdaQ+a6TJ2aIvo+aPictHtsdoTOj/4fUMfAhbelT2hI luhu@luhudeMacBook-<span class="hljs-keyword">Pro</span>.<span class="hljs-keyword">local</span><br>The key's randomart image is:<br>+---[RSA 2048]----+<br>|       . .       |<br>|      o Eo.      |<br>|       *+*       |<br>|        O*.      |<br>|      ..S=o      |<br>|     ..o..       |<br>|  ..=o.o ..      |<br>|  +*+*o.B..      |<br>| oBO*+++.+       |<br>+----[SHA256]-----+<br></code></pre>
+
+<ol start="2"><li rel="2">把A机下的id_rsa.pub复制到B机器下</li>
+</ol></div><div id="wmd-preview-section-1117" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs rust">luhudeMacBook-Pro:temp luhu$ scp id_rsa.<span class="hljs-keyword">pub</span>  root@luhu.<span class="hljs-keyword">in</span>:/root/id_rsa.<span class="hljs-keyword">pub</span><br>root@luhu.<span class="hljs-keyword">in</span>'s password: <br>id_rsa.<span class="hljs-keyword">pub</span>                                    <span class="hljs-number">100</span>%  <span class="hljs-number">410</span>     <span class="hljs-number">0.4</span>KB/s   <span class="hljs-number">00</span>:<span class="hljs-number">00</span>    <br>luhudeMacBook-Pro:temp luhu$ <br></code></pre>
+
+<p><em>由于还没有免密码登陆，所以需要输入密码</em></p>
+
+<ol start="3"><li rel="3">B机器把从A机器复制的id_rsa.pub添加到~/.ssh/authorzied_keys文件里。</li>
+</ol>
+
+</div><div id="wmd-preview-section-1496" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs stata">root@luhu.<span class="hljs-keyword">in</span>'s password:  <span class="hljs-comment">//登陆服务器</span><br>Welcome to Ubuntu 14.04.2 LTS (GNU/Linux 3.13.0-32-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com/</span><br><br>Welcome to aliyun Elastic Compute Service!<br><br>Last login: Fri <span class="hljs-keyword">Dec</span>  4 10:40:03 2015 from 180.156.126.255<br>root@iZ23lqq0vizZ:~# <span class="hljs-keyword">ls</span><br>a.gz  composer.phar  id_rsa.pub  phpwind.<span class="hljs-keyword">conf</span>  <span class="hljs-keyword">sh</span>-1.4.4<br>root@iZ23lqq0vizZ:~# <br>root@iZ23lqq0vizZ:~# <span class="hljs-keyword">ls</span> -a<br>.     .bash_history  .composer      id_rsa.pub    .profile<br>..    .bashrc        composer.phar  .lesshst      <span class="hljs-keyword">sh</span>-1.4.4<br>a.gz  .cache         .gitconfig     phpwind.<span class="hljs-keyword">conf</span>  .viminfo<br>root@iZ23lqq0vizZ:~# <span class="hljs-keyword">mkdir</span> .ssh <span class="hljs-comment">//可能没有这个目录，需要创建</span><br>root@iZ23lqq0vizZ:~# <span class="hljs-keyword">cd</span> .ssh/<br>root@iZ23lqq0vizZ:~/.ssh# <span class="hljs-keyword">ls</span><br>root@iZ23lqq0vizZ:~/.ssh# <span class="hljs-keyword">cat</span> ~/id_rsa.pub &gt;&gt;authorized_keys <span class="hljs-comment">//导入到authorized_keys文件</span><br>root@iZ23lqq0vizZ:~/.ssh# chmod 600 authorized_keys  设置权限<br></code></pre>
+
+<p><strong>authorized_keys权限需要6000</strong></p>
+
+<ol start="4"><li rel="4">A机登陆B机器脚本</li>
+</ol></div><div id="wmd-preview-section-1518" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs ruby">luhudeMacBook-<span class="hljs-constant">Pro</span><span class="hljs-symbol">:Desktop</span> luhu<span class="hljs-variable">$ </span>ssh root<span class="hljs-variable">@luhu</span>.<span class="hljs-keyword">in</span><br><span class="hljs-constant">Last</span> <span class="hljs-symbol">login:</span> <span class="hljs-constant">Wed</span> <span class="hljs-constant">Dec</span>  <span class="hljs-number">9</span> <span class="hljs-number">13</span><span class="hljs-symbol">:</span><span class="hljs-number">01</span><span class="hljs-symbol">:</span><span class="hljs-number">10</span> <span class="hljs-number">2015</span> from <span class="hljs-number">114.89</span>.<span class="hljs-number">47.250</span><br><br><span class="hljs-constant">Welcome</span> to aliyun <span class="hljs-constant">Elastic</span> <span class="hljs-constant">Compute</span> <span class="hljs-constant">Service</span>!<br><br>[root<span class="hljs-variable">@iZ284knj16kZ</span> ~]<span class="hljs-comment"># </span><br><br><br></code></pre></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
