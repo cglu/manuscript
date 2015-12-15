@@ -1,0 +1,60 @@
+<!DOCTYPE html><html><head><title>给普通用户分配root权限执行shell脚本</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-1475" class="wmd-preview-section preview-content">
+
+<p></p>
+
+</div><div id="wmd-preview-section-1663" class="wmd-preview-section preview-content">
+
+<h1 id="给普通用户分配root权限执行shell脚本">给普通用户分配root权限执行shell脚本</h1></div><div id="wmd-preview-section-1101" class="wmd-preview-section preview-content">
+
+<h3 id="问题产生">问题产生</h3>
+
+<blockquote>
+  <p>在开发服务器使用过程中，发现需要对于新建的文件、都要设置合适的权限。比如:</p>
+</blockquote></div><div id="wmd-preview-section-1786" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>drwxrwxr-- <span class="hljs-number">6</span> daemon developer <span class="hljs-number">4096</span> <span class="hljs-number">12</span>月 <span class="hljs-number">14</span> <span class="hljs-number">20</span>:<span class="hljs-number">22</span> crm2<br></code></pre>
+
+<p><strong>问题:普通用户需要执行系统命令时候需要提升权限，首先想到的是sudo命令，OK，开始查资料…</strong></p></div><div id="wmd-preview-section-1123" class="wmd-preview-section preview-content">
+
+<h3 id="策略分析">策略分析</h3>
+
+<blockquote>
+  <p>在Liunx系统使用过程中，通常情况下，我们都会使用普通用户进行日常操作，而root用户只有在权限分配及系统设置时才会使用，而root用户的密码也不可能公开。普通用户执行到系统程序时，需要临时提升权限，sudo就是我们常用的命令，仅需要输入当前用户密码，便可以完成权限的临时提升。在使用sudo命令的过程中，我们经常会遇到当前用户不在sudoers文件中的提示信息，如果解决该问题呢？通过下面几个步骤，可以很简单的解决此问题。</p>
+</blockquote></div><div id="wmd-preview-section-249" class="wmd-preview-section preview-content">
+
+<h3 id="操作步骤">操作步骤</h3>
+
+<ol start="1"><li rel="1">切换到root用户</li>
+</ol>
+
+</div><div id="wmd-preview-section-394" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs armasm"><span class="hljs-comment line-number">1.</span><span class="hljs-keyword">bash-4.2$ </span>su root<br><span class="hljs-comment line-number">2.</span>密码：<br></code></pre>
+
+<ol start="2"><li rel="2">查看/etc/sudoers文件权限，如果只读、设置为可修改权限</li>
+</ol>
+
+</div><div id="wmd-preview-section-759" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>[root@iZ284knj16kZ ~]<span class="hljs-preprocessor"># ls -l /etc/sudoers</span><br><span class="hljs-comment line-number">2.</span>-r--r-----. <span class="hljs-number">1</span> root root <span class="hljs-number">4069</span> <span class="hljs-number">12</span>月 <span class="hljs-number">15</span> <span class="hljs-number">09</span>:<span class="hljs-number">32</span> /etc/sudoers<br><span class="hljs-comment line-number">3.</span>[root@iZ284knj16kZ ~]<span class="hljs-preprocessor"># chmod <span class="hljs-number">777</span> /etc/sudoers</span><br><span class="hljs-comment line-number">4.</span>[root@iZ284knj16kZ ~]<span class="hljs-preprocessor"># ls -l /etc/sudoers</span><br><span class="hljs-comment line-number">5.</span>-rwxrwxrwx. <span class="hljs-number">1</span> root root <span class="hljs-number">4069</span> <span class="hljs-number">12</span>月 <span class="hljs-number">15</span> <span class="hljs-number">09</span>:<span class="hljs-number">32</span> /etc/sudoers<br></code></pre>
+
+<ol start="3"><li rel="3">执行Vi命令、编辑/etc/sudoers文件，添加需要提升权限的用户;在文件中找到root ALL=(ALL) ALL,在改行下面添加提升权限的用户信息,<strong>我这里需要为组添加权限</strong></li>
+</ol>
+
+</div><div id="wmd-preview-section-952" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs crystal"><span class="hljs-comment line-number">1.</span>root    <span class="hljs-constant">ALL</span>=(<span class="hljs-constant">ALL</span>)   <span class="hljs-constant">ALL</span><br><span class="hljs-comment line-number">2.</span>%developer <span class="hljs-constant">ALL</span>=<span class="hljs-regexp">/usr/bin</span><span class="hljs-regexp">/chmod ,/usr</span><span class="hljs-regexp">/bin/chown</span> ,<span class="hljs-regexp">/opt/lampp</span><span class="hljs-regexp">/htdocs/b</span>.sh<br></code></pre>
+
+<p>5.切换到普通用户，测试用户权限提升功能</p>
+
+</div><div id="wmd-preview-section-1158" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs stylus"><span class="hljs-comment line-number">1.</span>su luhu<br><span class="hljs-comment line-number">2.</span>bash-<span class="hljs-number">4.2</span>$ sudo /opt/lampp/htdocs/<span class="hljs-tag">b</span><span class="hljs-class">.sh</span> <br><span class="hljs-comment line-number">3.</span>[sudo] password <span class="hljs-keyword">for</span> luhu: <br><span class="hljs-comment line-number">4.</span>bash-<span class="hljs-number">4.2</span>$ <br></code></pre>
+
+<p><strong>功能正常。</strong></p></div><div id="wmd-preview-section-1356" class="wmd-preview-section preview-content">
+
+<h3 id="小洁">小洁</h3>
+
+<p>参考资料:<a href="http://undefined" target="_blank">[置顶] 用户不在sudoers文件中的解决方法</a></p></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
