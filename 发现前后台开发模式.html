@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><title>发现前后台开发模式</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-970" class="wmd-preview-section preview-content">
+
+</div><div id="wmd-preview-section-4998" class="wmd-preview-section preview-content">
+
+<h2 id="发现前后台开发模式">发现前后台开发模式</h2>
+
+<blockquote>
+  <p>我是主要做后台开发的，一直想找一款可以测试进行HTTP接口测试的工具，前几天在浏览博客的时候、发现了<a href="http://mockjs.com/" target="_blank">mock.js</a>和<a href="https://chrome.google.com/webstore/detail/postman-rest-client-packa/fhbjgbiflinjbdggehcddcbncdddomop?hl=en" target="_blank">postman</a>这两个东西、刚好满足我的要求。而且mock.js的使用可以节省我在联调阶段浪费的精力、对于前台也是有利的。</p>
+</blockquote></div><div id="wmd-preview-section-3220" class="wmd-preview-section preview-content">
+
+<h3 id="先说现在的开发模式">先说:现在的开发模式</h3>
+
+<blockquote>
+  <p>我们现在一个功能的开发。同样是前后台分离、各自做各自的，最后做联合调试。首先定义好接口地址、响应数据的格式、请求方法等内容。然后前后台开工….前台通过把定义好的数据格式写入到txt文本中、来模拟数据。后台则通过在浏览器输入地址查看输出。然后不啦不啦开始….</p>
+</blockquote></div><div id="wmd-preview-section-1723" class="wmd-preview-section preview-content">
+
+<h3 id="缺陷分析">缺陷分析</h3></div><div id="wmd-preview-section-1766" class="wmd-preview-section preview-content">
+
+<h4 id="前端缺陷">前端缺陷</h4>
+
+<ol><li rel="1">数据需要写入txt文本中，联合调试阶段需要修改URL。</li>
+<li rel="2">在某些逻辑复杂的代码中，加入和去除模拟数据要小心翼翼。<strong>更闹人的是:在整个开发中还需要时刻牢记有这么一回事情。</strong></li>
+<li rel="3">…….其他的乱七八糟的不列了。</li>
+</ol>
+
+</div><div id="wmd-preview-section-4020" class="wmd-preview-section preview-content">
+
+<h4 id="后端缺点">后端缺点</h4>
+
+<ol><li rel="1"><strong>很明显、浏览器测试很局限。比如:只能单一的发送GET请求；COOKIE、HEADERS都不能进行操作。</strong></li>
+<li rel="2">特定场景下，测试单个API需要考虑到很多。下次测试这个API、又需要考虑….</li>
+<li rel="3">不能做自动化测试。</li>
+</ol>
+
+</div><div id="wmd-preview-section-4077" class="wmd-preview-section preview-content">
+
+<h3 id="别怀疑看起来就是那么古老不过现在以上都不在是问题">别怀疑、看起来就是那么古老！！！不过、现在以上都不在是问题</h3></div><div id="wmd-preview-section-6201" class="wmd-preview-section preview-content">
+
+<h3 id="体验">体验</h3>
+
+<p>mock.js的使用简化了前台需要考虑的内容，在不改变URL的情况下，前端就可独立于后台进行开发。而联调期间后台也不需要深入前台内部。有问题就找前台了。连URL 都不用修改。。。那酸爽。 <br>
+postman作为一个测试工具，太犀利了。用它查看结果、记录调试历史、最后还可以积累一批测试用例。可以拿来做自动化测试。还可以作为API文档来使用。 <br>
+学习期间，自己做了个案例<a href="https://github.com/cglu/tlook/tree/master/B00002_html~mock" target="_blank">github地址</a>。mock.js只写了jquery，对我来说够用了。其他的可以参加官方的demo。postman的使用效果截了一个图放到了项目里面。。。</p></div><div id="wmd-preview-section-4789" class="wmd-preview-section preview-content">
+
+<h3 id="总结">总结</h3>
+
+<p>多看看文章、是有好处的。。。</p></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>

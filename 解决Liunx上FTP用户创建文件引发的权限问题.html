@@ -1,24 +1,30 @@
 <!DOCTYPE html><html><head><title>解决Liunx上FTP用户创建文件引发的权限问题</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
                         <div id="wmd-preview" class="preview-content"></div>
-                    <div id="wmd-preview-section-75" class="wmd-preview-section preview-content">
+                    <div id="wmd-preview-section-2" class="wmd-preview-section preview-content">
 
-<p></p></div><div id="wmd-preview-section-410" class="wmd-preview-section preview-content">
+<p></p>
+
+</div><div id="wmd-preview-section-3" class="wmd-preview-section preview-content">
 
 <h2 id="解决liunx上ftp用户创建文件引发的权限问题">解决Liunx上FTP用户创建文件引发的权限问题</h2>
 
-</div><div id="wmd-preview-section-876" class="wmd-preview-section preview-content">
+</div><div id="wmd-preview-section-4" class="wmd-preview-section preview-content">
 
 <h3 id="问题">问题</h3>
 
 <blockquote>
   <p>在使用开发服务器的过程。难免会在服务器上创建新的文件。但是发现通过FTP创建的文件不能被其他FTP账户写入。</p>
-</blockquote></div><div id="wmd-preview-section-5047" class="wmd-preview-section preview-content">
+</blockquote>
+
+</div><div id="wmd-preview-section-5" class="wmd-preview-section preview-content">
 
 <pre class="prettyprint hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>新建文件的默认权限：<br><span class="hljs-comment line-number">2.</span>-rw-r--r-- <span class="hljs-number">1</span> root   developer    <span class="hljs-number">0</span> <span class="hljs-number">1</span>月  <span class="hljs-number">13</span> <span class="hljs-number">22</span>:<span class="hljs-number">49</span> newfile<br></code></pre>
 
 <blockquote>
   <p>这里需要说明的是我们使用ProFTPD来控制文件传输。 所有的FTP账号都属于developer组。</p>
-</blockquote></div><div id="wmd-preview-section-572" class="wmd-preview-section preview-content">
+</blockquote>
+
+</div><div id="wmd-preview-section-6" class="wmd-preview-section preview-content">
 
 <h3 id="初期解决方案">初期解决方案</h3>
 
@@ -26,7 +32,7 @@
   <p>刚开始是写了一个b.sh，通过执行这个脚本来设置目录或文件的权限</p>
 </blockquote>
 
-</div><div id="wmd-preview-section-1002" class="wmd-preview-section preview-content">
+</div><div id="wmd-preview-section-7" class="wmd-preview-section preview-content">
 
 <pre class="prettyprint hljs-dark"><code class="hljs autoit"><span class="hljs-comment line-number">1.</span><span class="hljs-preprocessor">#改变所属用户和所属组</span><br><span class="hljs-comment line-number">2.</span>chown daemon:developer /<span class="hljs-built_in">opt</span>/lampp/htdocs -R<br><span class="hljs-comment line-number">3.</span><span class="hljs-preprocessor">#改变文件或目录安全等级</span><br><span class="hljs-comment line-number">4.</span>chmod u=rwx,g=rwx,o=r /<span class="hljs-built_in">opt</span>/lampp/htdocs -R<br></code></pre>
 
@@ -34,7 +40,7 @@
   <p>显而易见，缺点就是新建一个文件就需要登陆到服务器、然后执行一下脚本。显得很是繁琐。</p>
 </blockquote>
 
-</div><div id="wmd-preview-section-5226" class="wmd-preview-section preview-content">
+</div><div id="wmd-preview-section-8" class="wmd-preview-section preview-content">
 
 <h3 id="优化的方案">优化的方案</h3>
 
@@ -44,23 +50,25 @@
 </blockquote>
 
 <ol start="1"><li rel="1">用vi编辑vi server/httpd/conf/httpd.conf文件，设置运行apache组为developer。</li>
-</ol></div><div id="wmd-preview-section-4361" class="wmd-preview-section preview-content">
+</ol>
+
+</div><div id="wmd-preview-section-9" class="wmd-preview-section preview-content">
 
 <pre class="prettyprint hljs-dark"><code class="hljs crmsh"><span class="hljs-comment line-number">1.</span><span class="hljs-comment">#更改后的内容</span><br><span class="hljs-comment line-number">2.</span><span class="hljs-keyword">User</span> <span class="hljs-title">www</span><br><span class="hljs-comment line-number">3.</span><span class="hljs-keyword">Group</span> <span class="hljs-title">developer</span><br></code></pre>
 
 <ol start="2"><li rel="2">更改ProFTPD默认的默认文件安全等级，使得组内成员具有读取和写入权限。</li>
-</ol></div><div id="wmd-preview-section-4042" class="wmd-preview-section preview-content">
+</ol>
+
+</div><div id="wmd-preview-section-10" class="wmd-preview-section preview-content">
 
 <pre class="prettyprint hljs-dark"><code class="hljs oxygene"><span class="hljs-comment line-number">1.</span># Umask <span class="hljs-number">022</span> <span class="hljs-keyword">is</span> a good standard umask <span class="hljs-keyword">to</span> prevent <span class="hljs-keyword">new</span> dirs <span class="hljs-keyword">and</span> files<br><span class="hljs-comment line-number">2.</span># <span class="hljs-keyword">from</span> being <span class="hljs-keyword">group</span> <span class="hljs-keyword">and</span> world writable.<br><span class="hljs-comment line-number">3.</span>Umask               <span class="hljs-number">002</span><br></code></pre>
 
 <ol start="3"><li rel="3">给网站根目录增加SGID访问权限，且更改目录属组为developer。使得在该目录下创建的目录和文件默认属组为developer。</li>
 </ol>
 
-</div><div id="wmd-preview-section-4503" class="wmd-preview-section preview-content">
+</div><div id="wmd-preview-section-44" class="wmd-preview-section preview-content">
 
-<pre class="prettyprint hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>[root@iZ284knj16kZ lampp]<span class="hljs-preprocessor"># chgrp -R developer htdocs</span><br><span class="hljs-comment line-number">2.</span>ls -l  |grep htdocs<br><span class="hljs-comment line-number">3.</span>drwxr-xr-x  <span class="hljs-number">6</span> daemon developer    <span class="hljs-number">4096</span> <span class="hljs-number">1</span>月  <span class="hljs-number">14</span> <span class="hljs-number">09</span>:<span class="hljs-number">49</span> htdocs<br><span class="hljs-comment line-number">4.</span>drwxrwxr-x  <span class="hljs-number">5</span> root   root         <span class="hljs-number">4096</span> <span class="hljs-number">11</span>月 <span class="hljs-number">27</span> <span class="hljs-number">10</span>:<span class="hljs-number">40</span> htdocs.backup<br><span class="hljs-comment line-number">5.</span>[root@iZ284knj16kZ lampp]<span class="hljs-preprocessor"># chmod g+s htdocs</span><br><span class="hljs-comment line-number">6.</span>[root@iZ284knj16kZ lampp]<span class="hljs-preprocessor"># ls -l |grep htdocs</span><br><span class="hljs-comment line-number">7.</span>drwxrwsr-x  <span class="hljs-number">6</span> daemon developer    <span class="hljs-number">4096</span> <span class="hljs-number">1</span>月  <span class="hljs-number">14</span> <span class="hljs-number">09</span>:<span class="hljs-number">49</span> htdocs<br></code></pre>
-
-</div><div id="wmd-preview-section-5373" class="wmd-preview-section preview-content">
+<pre class="prettyprint hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>[root@iZ284knj16kZ lampp]<span class="hljs-preprocessor"># chgrp -R developer htdocs</span><br><span class="hljs-comment line-number">2.</span>ls -l  |grep htdocs<br><span class="hljs-comment line-number">3.</span>drwxr-xr-x  <span class="hljs-number">6</span> daemon developer    <span class="hljs-number">4096</span> <span class="hljs-number">1</span>月  <span class="hljs-number">14</span> <span class="hljs-number">09</span>:<span class="hljs-number">49</span> htdocs<br><span class="hljs-comment line-number">4.</span>drwxrwxr-x  <span class="hljs-number">5</span> root   root         <span class="hljs-number">4096</span> <span class="hljs-number">11</span>月 <span class="hljs-number">27</span> <span class="hljs-number">10</span>:<span class="hljs-number">40</span> htdocs.backup<br><span class="hljs-comment line-number">5.</span>[root@iZ284knj16kZ lampp]<span class="hljs-preprocessor"># chmod g+s -R htdocs</span><br><span class="hljs-comment line-number">6.</span>[root@iZ284knj16kZ lampp]<span class="hljs-preprocessor"># ls -l |grep htdocs</span><br><span class="hljs-comment line-number">7.</span>drwxrwsr-x  <span class="hljs-number">6</span> daemon developer    <span class="hljs-number">4096</span> <span class="hljs-number">1</span>月  <span class="hljs-number">14</span> <span class="hljs-number">09</span>:<span class="hljs-number">49</span> htdocs<br></code></pre></div><div id="wmd-preview-section-12" class="wmd-preview-section preview-content">
 
 <h2 id="小结">小结</h2>
 
