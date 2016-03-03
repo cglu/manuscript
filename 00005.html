@@ -1,0 +1,65 @@
+<!DOCTYPE html><html><head><title>Redis实践总结</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-37" class="wmd-preview-section preview-content">
+
+<p></p>
+
+</div><div id="wmd-preview-section-3653" class="wmd-preview-section preview-content">
+
+<h2 id="redis实践总结">Redis实践总结</h2>
+
+<blockquote>
+  <p>利用业余时间给Lublog增加了缓存机制、今天有空。坐下来把这几天的工作总结一下。</p>
+</blockquote></div><div id="wmd-preview-section-1173" class="wmd-preview-section preview-content">
+
+<h3 id="问题产生">问题产生</h3>
+
+<blockquote>
+  <p>Lublog的基本的博客功能算是差不多。之前新增了解析RSS新闻的功能。感觉页面加载时间慢了下来。于是想把目前现有的功能做一次优化。第一个想法就是缓存RSS数据了。毕竟新闻不是时刻更新的。 <br>
+  项目使用的是laravel框架。默认使用文件缓存系统。但感觉这个不是很高大上。也起不到学习的目的。加之一直听说Redis很是牛逼。于是….</p>
+</blockquote></div><div id="wmd-preview-section-5392" class="wmd-preview-section preview-content">
+
+<h3 id="redis学习">Redis学习</h3>
+
+<blockquote>
+  <p>Redis如何高效、如何犀利这里不再多说了。网上很多。这里贴两篇比较有营养的文章。足够入门加深入了。<a href="http://blog.nosqlfan.com/html/3139.html?ref=rediszt" target="_blank">Redis系统性介绍</a>  <a href="http://blog.nosqlfan.com/html/3202.html?ref=rediszt" target="_blank">十五分钟介绍 Redis数据结构</a>  <a href="http://blog.nosqlfan.com/html/3813.html" target="_blank">解密Redis持久化</a></p>
+</blockquote></div><div id="wmd-preview-section-4091" class="wmd-preview-section preview-content">
+
+<h3 id="重点来了lublog实践总结">重点来了、Lublog实践总结</h3></div><div id="wmd-preview-section-1188" class="wmd-preview-section preview-content">
+
+<h4 id="缓存目标">缓存目标</h4>
+
+<ol><li rel="1">解析CSDN RSS(新闻)</li>
+<li rel="2">Lublog RSS生成 </li>
+<li rel="3">文章分页缓存</li>
+<li rel="4">分类缓存</li>
+<li rel="5">归档缓存</li>
+</ol></div><div id="wmd-preview-section-5415" class="wmd-preview-section preview-content">
+
+<h4 id="解决方案">解决方案</h4>
+
+<ol><li rel="1">解析CSDN RSS比较简单。直接缓存一天即可。</li>
+<li rel="2"><p>目标2～5采用同一个策略</p>
+
+<blockquote>
+  <p><strong>查询数据主动失效时间为0.5小时。如果文章发生增删改、则被动失效。这样可以保证Redis和MySql数据一致性。</strong>其中目标3比较特殊、有分页缓存的概念。所以需要对KEY做一些定义、并且存储下来这些KEY，在文章发生变化时候、便于删除缓存。</p>
+</blockquote>
+
+<h5 id="key定义">Key定义</h5>
+
+<p>基调定义:<code>subject:object:key1....</code> <br>
+分页缓存Key命名:<code>weclome.artice:pageNumber</code>,比如当前为第一页，则Key等于<code>weclome.artice:1</code>。然后把<code>weclome.artice:1</code>放入到Redis的List结构中、方便以后删除缓存。比如放入Key为<code>welcome:articles:pages</code>的List中。</p></li>
+</ol></div><div id="wmd-preview-section-3788" class="wmd-preview-section preview-content">
+
+<h5 id="核心代码">核心代码</h5>
+
+</div><div id="wmd-preview-section-4267" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span>//存储&amp;&amp;使用缓存<br><span class="hljs-comment line-number">2.</span> public <span class="hljs-keyword">function</span> welcome(Request <span class="hljs-variable">$request</span>)<br><span class="hljs-comment line-number">3.</span>    {<br><span class="hljs-comment line-number">4.</span>        <span class="hljs-variable">$page</span> = <span class="hljs-variable">$request-</span>&gt;input(<span class="hljs-string">'page'</span>, <span class="hljs-number">1</span>);<br><span class="hljs-comment line-number">5.</span>        <span class="hljs-variable">$key</span> = <span class="hljs-string">"welcome:articles:"</span> . <span class="hljs-variable">$page</span>;<br><span class="hljs-comment line-number">6.</span>        if (Cache::has(<span class="hljs-variable">$key</span>)) {<br><span class="hljs-comment line-number">7.</span>            Log::info(<span class="hljs-string">"从缓存中取得数据."</span>);<br><span class="hljs-comment line-number">8.</span>            <span class="hljs-variable">$articles</span> = Cache::get(<span class="hljs-variable">$key</span>);<br><span class="hljs-comment line-number">9.</span>        } else {<br><span class="hljs-comment line-number">10.</span>            Log::info(<span class="hljs-string">"缓存中没有数据，从DB取得数据，并放入缓存中."</span>);<br><span class="hljs-comment line-number">11.</span>            <span class="hljs-variable">$articles</span> = Article::orderBy(<span class="hljs-string">'created_at'</span>, <span class="hljs-string">'desc'</span>)-&gt;paginate();<br><span class="hljs-comment line-number">12.</span>            <span class="hljs-variable">$expiresAt</span> = Carbon::now()-&gt;addMinute(<span class="hljs-number">30</span>);<br><span class="hljs-comment line-number">13.</span>            Cache::put(<span class="hljs-variable">$key</span>, <span class="hljs-variable">$articles</span>, <span class="hljs-variable">$expiresAt</span>);<br><span class="hljs-comment line-number">14.</span>            Redis::command(<span class="hljs-string">'rpush'</span>, [<br><span class="hljs-comment line-number">15.</span>                <span class="hljs-string">'welcome:articles:pages'</span>,<br><span class="hljs-comment line-number">16.</span>                <span class="hljs-variable">$key</span><br><span class="hljs-comment line-number">17.</span>            ]);<br><span class="hljs-comment line-number">18.</span>        }<br><span class="hljs-comment line-number">19.</span>        return view(<span class="hljs-string">'welcome'</span>)-&gt;with(<span class="hljs-string">'articles'</span>, <span class="hljs-variable">$articles</span>);<br><span class="hljs-comment line-number">20.</span>    }<br><span class="hljs-comment line-number">21.</span><br><span class="hljs-comment line-number">22.</span><br><span class="hljs-comment line-number">23.</span>//文章发生增删改、缓存失效代码<br><span class="hljs-comment line-number">24.</span>  private <span class="hljs-keyword">function</span> clear_articels_cache(){<br><span class="hljs-comment line-number">25.</span>        <span class="hljs-variable">$pages</span>=Redis::command(<span class="hljs-string">'lrange'</span>,[<span class="hljs-string">'welcome:articles:pages'</span>,<span class="hljs-number">0</span>,-<span class="hljs-number">1</span>]);<br><span class="hljs-comment line-number">26.</span>        foreach (<span class="hljs-variable">$pages</span> as <span class="hljs-variable">$cache</span>_key){<br><span class="hljs-comment line-number">27.</span>            if (Cache::has(<span class="hljs-variable">$cache</span>_key)) {<br><span class="hljs-comment line-number">28.</span>                Cache::forget(<span class="hljs-variable">$cache</span>_key);<br><span class="hljs-comment line-number">29.</span>            }<br><span class="hljs-comment line-number">30.</span>        }<br><span class="hljs-comment line-number">31.</span>        Redis::command(<span class="hljs-string">'del'</span>,[<span class="hljs-string">'welcome:articles:pages'</span>]);<br><span class="hljs-comment line-number">32.</span>        Cache::forget(<span class="hljs-string">'self:rss'</span>);<br><span class="hljs-comment line-number">33.</span>        Cache::forget(<span class="hljs-string">'self:archive'</span>);<br><span class="hljs-comment line-number">34.</span>        Cache::forget(<span class="hljs-string">'self::categorie'</span>);<br><span class="hljs-comment line-number">35.</span>    }<br></code></pre>
+
+</div><div id="wmd-preview-section-5598" class="wmd-preview-section preview-content">
+
+<h3 id="小结">小结</h3>
+
+<p>增加了缓存机制之后，明显感受到luhu.in的页面加速度提升了。基本上在400ms左右能加载完毕。但我还有很多想待思考和解决的问题:比如是否有更加好的解决方案呢？哪些地方还可以增加缓存的地方呢?…… <br>
+最后引用一句屈原的名句<em>“路漫漫其修远兮,吾将上下而求索”</em>.</p></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>

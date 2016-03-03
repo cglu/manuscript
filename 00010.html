@@ -1,0 +1,170 @@
+<!DOCTYPE html><html><head><title>sysv-rc-conf 设置ubuntu开机自启动</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style></style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-3206" class="wmd-preview-section preview-content">
+
+<p></p>
+
+</div><div id="wmd-preview-section-3207" class="wmd-preview-section preview-content">
+
+<h1 id="sysv-rc-conf-设置ubuntu开机自启动">sysv-rc-conf 设置ubuntu开机自启动</h1>
+
+<blockquote>
+  <p>redis运行也有一段时间了、今天准备让Redis开机自动启动。使用的是功能强大的服务器管理程序sysv-rc-conf。本服务器是Ubuntu 14.04.2 LTS系统。以下内容都摘录自网络。</p>
+</blockquote>
+
+</div><div id="wmd-preview-section-3208" class="wmd-preview-section preview-content">
+
+<h2 id="sysv-rc-conf简介">sysv-rc-conf简介</h2>
+
+<p>sysv-rc-conf是一个强大的服务管理程序，群众的意见是sysv-rc-conf比chkconfig好用。</p>
+
+</div><div id="wmd-preview-section-3209" class="wmd-preview-section preview-content">
+
+<h2 id="背景知识">背景知识</h2>
+
+</div><div id="wmd-preview-section-3210" class="wmd-preview-section preview-content">
+
+<h3 id="ubuntu运行级别">Ubuntu运行级别</h3>
+
+<p>Linux 系统任何时候都运行在一个指定的运行级上，并且不同的运行级的程序和服务都不同，所要完成的工作和要达到的目的都不同，系统可以在这些运行级之间进行切换，以完成不同的工作。</p>
+
+</div><div id="wmd-preview-section-3211" class="wmd-preview-section preview-content">
+
+<h3 id="ubuntu-的系统运行级别">Ubuntu 的系统运行级别：</h3>
+
+<p>0 系统停机状态 <br>
+1 单用户或系统维护状态 <br>
+2~5 多用户状态 <br>
+6 重新启动</p>
+
+</div><div id="wmd-preview-section-3212" class="wmd-preview-section preview-content">
+
+<h3 id="查看当前运行级别执行命令">查看当前运行级别,执行命令：</h3>
+
+</div><div id="wmd-preview-section-3213" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs"><span class="hljs-comment line-number">1.</span>runlevel<br></code></pre>
+
+<p>runlevel 显示上次的运行级别和当前的运行级别，“N”表示没有上次的运行级别。</p>
+
+</div><div id="wmd-preview-section-3214" class="wmd-preview-section preview-content">
+
+<h3 id="切换运行级别执行命令">切换运行级别，执行命令：</h3>
+
+</div><div id="wmd-preview-section-3215" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs accesslog"><span class="hljs-comment line-number">1.</span>init <span class="hljs-string">[0123456Ss]</span><br></code></pre>
+
+<p>即在 init 命令后跟一个参数，此参数是要切换到的运行级的运行级代号，如：用 init 0 命令关机；用 init 6 命令重新启动。</p>
+
+</div><div id="wmd-preview-section-3216" class="wmd-preview-section preview-content">
+
+<h2 id="linux-系统主要启动步骤">Linux 系统主要启动步骤</h2>
+
+</div><div id="wmd-preview-section-3217" class="wmd-preview-section preview-content">
+
+<h3 id="读取-mbr-的信息启动-boot-manager">读取 MBR 的信息,启动 Boot Manager</h3>
+
+<p>Windows 使用 NTLDR 作为 Boot Manager,如果您的系统中安装多个 <br>
+版本的 Windows,您就需要在 NTLDR 中选择您要进入的系统。 <br>
+Linux 通常使用功能强大,配置灵活的 GRUB 作为 Boot Manager。</p>
+
+</div><div id="wmd-preview-section-3218" class="wmd-preview-section preview-content">
+
+<h3 id="加载系统内核启动-init-进程">加载系统内核,启动 init 进程</h3>
+
+<p>init 进程是 Linux 的根进程,所有的系统进程都是它的子进程。</p>
+
+</div><div id="wmd-preview-section-3219" class="wmd-preview-section preview-content">
+
+<h3 id="进程读取">进程读取</h3>
+
+<p>init 进程读取 /etc/inittab 文件中的信息,并进入预设的运行级别, <br>
+按顺序运行该运行级别对应文件夹下的脚本。脚本通常以 start 参数启 <br>
+动,并指向一个系统中的程序。 <br>
+通常情况下, /etc/rcS.d/ 目录下的启动脚本首先被执行,然后是 <br>
+/etc/rcN.d/ 目录。例如您设定的运行级别为 3,那么它对应的启动 <br>
+目录为 /etc/rc3.d/ 。</p>
+
+</div><div id="wmd-preview-section-3220" class="wmd-preview-section preview-content">
+
+<h3 id="根据对应脚本启动服务器">根据对应脚本启动服务器</h3>
+
+<p>根据 /etc/rcS.d/ 文件夹中对应的脚本启动 Xwindow 服务器 xorg <br>
+Xwindow 为 Linux 下的图形用户界面系统。</p>
+
+</div><div id="wmd-preview-section-3221" class="wmd-preview-section preview-content">
+
+<h3 id="启动登录管理器等待用户登录">启动登录管理器,等待用户登录</h3>
+
+<p>Ubuntu 系统默认使用 GDM 作为登录管理器,您在登录管理器界面中 <br>
+输入用户名和密码后,便可以登录系统。(您可以在 /etc/rc3.d/ <br>
+文件夹中找到一个名为 S13gdm 的链接)</p>
+
+</div><div id="wmd-preview-section-3222" class="wmd-preview-section preview-content">
+
+<h2 id="安装sysv-rc-conf编">安装sysv-rc-conf编</h2>
+
+</div><div id="wmd-preview-section-3223" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="hljs vim"><span class="hljs-comment line-number">1.</span>sudo apt-<span class="hljs-built_in">get</span> install sysv-rc-<span class="hljs-keyword">conf</span><br></code></pre>
+
+</div><div id="wmd-preview-section-3224" class="wmd-preview-section preview-content">
+
+<h2 id="使用sysv-rc-conf">使用sysv-rc-conf</h2>
+
+</div><div id="wmd-preview-section-3225" class="wmd-preview-section preview-content">
+
+<h3 id="界面操作">界面操作</h3>
+
+<p>sudo sysv-rc-conf <br>
+操作界面十分简洁，你可以用鼠标点击，也可以用键盘方向键定位，用空格键选择，用Ctrl+N翻下一页，用Ctrl+P翻上一页，用Q退出。其中，“X”表示开启该服务。</p>
+
+</div><div id="wmd-preview-section-3226" class="wmd-preview-section preview-content">
+
+<h3 id="命令操作">命令操作</h3>
+
+<blockquote>
+  <p>在Linux系统下，一个Services的启动、停止以及重启通常是通过/etc/init.d目录下的脚本来控制的。然而，在启动或改变运行级别时，是在/etc/rcX.d中来搜索脚本。其中X是运行级别的number。本文将解释如何启动、关闭和修改服务的运行。当你在Debian下安装一个新的服务，比如Apache2，安装完成后，默认情况下它会启动，并在下一次重启后自动启动。但是如果你不是一直需要这个服务，只在需要的时候启用它，你可以禁用它。直到你需要使用的时候，执行如下指令： <br>
+  /etc/init.d/apache2 start <br>
+  要实现这个目的，你需要先在/etc/rcX.d目录中删除所有apache2的符号链接，但这个方法操作麻烦，且效率低下。因此，我们建议你使用update-rc.d命令来实现这个功能。</p>
+</blockquote>
+
+<ol><li rel="1">删除一个服务 <br>
+如果你想手动的完全禁用Apache2服务，你需要删除其中的所有在/etc/rcX.d中的单一链路。但是如果使用update-rc.d，则非常简单：  <br>
+update-rc.d -f apache2 remove <br>
+参数-f是强制删除符号链接，即使/etc/init.d/apache2仍然存在。 Note：这个命令仅仅禁止该服务，直到该服务被升级。如果你想在服务升级后仍然保持被禁用。应该执行如下的命令： <br>
+update-rc.d apache2 stop 80 0 1 2 3 4 5 6 .</li>
+<li rel="2">增加一个服务 <br>
+如果你想重新添加这个服务并让它开机自动执行，你需要执行以下命令：  <br>
+update-rc.d apache2 defaults <br>
+并且可以指定该服务的启动顺序： <br>
+update-rc.d apache2 defaults 90 <br>
+还可以更详细的控制start与kill顺序： <br>
+update-rc.d apache2 defaults 20 80 <br>
+其中前面的20是start时的运行顺序级别，80为kill时的级别。也可以写成： <br>
+update-rc.d apache2 start 20 2 3 4 5 . stop 80 0 1 6 . <br>
+其中0～6为运行级别。 update-rc.d命令不仅适用Linux服务，编写的脚本同样可以用这个命令设为开机自动运行</li>
+</ol>
+
+</div><div id="wmd-preview-section-3227" class="wmd-preview-section preview-content">
+
+<h2 id="案例创建开机启动程序">案例:创建开机启动程序</h2>
+
+<ol><li rel="1">编写服务脚本放在/etc/init.d下，例如servicetest <br>
+/etc/init.d/servicectest</li>
+<li rel="2">在/etc/rc*.d中制作相关的link。K开头是kill, S开头是start, 数字顺序代表启动的顺序。 <br>
+update-rc.d 可以帮你的忙。 <br>
+例如： <br>
+在/etc/init.d 中建立一个叫作servicetest的script , 然后 <br>
+update-rc.d servicetest defaults</li>
+</ol>
+
+</div><div id="wmd-preview-section-3389" class="wmd-preview-section preview-content">
+
+<h2 id="references">References:</h2>
+
+<ol><li rel="1"><a href="http://blog.csdn.net/aa2650/article/details/6304049" target="_blank">linux-ubuntu与Debian系统中的update-rc.d(创建/注册系统服务)</a></li>
+<li rel="2"><a href="http://blog.sina.com.cn/s/blog_79159ef50100z1ax.html" target="_blank">update-rc.d使用 </a></li>
+<li rel="3"><a href="http://my.oschina.net/liseor/blog/206346?fromerr=zPSoAjjX" target="_blank">Ubuntu 安装 Redis,并配置开机启动</a></li>
+</ol></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
