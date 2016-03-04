@@ -1,7 +1,7 @@
 <?php
 $str= <<<'EOD'
 <script>
-     document.domain = 'lubu.in'
+     document.domain = 'luhu.in'
 // 计算页面的实际高度，iframe自适应会用到
 function calcPageHeight(doc) {
 var cHeight = Math.max(doc.body.clientHeight, doc.documentElement.clientHeight)
