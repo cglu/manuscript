@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><title>VT5项目实现文件关联</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-1376" class="wmd-preview-section preview-content">
+
+</div><div id="wmd-preview-section-1377" class="wmd-preview-section preview-content">
+
+<h2 id="vt5项目实现文件关联">VT5项目实现文件关联</h2>
+
+</div><div id="wmd-preview-section-1378" class="wmd-preview-section preview-content">
+
+<h3 id="需求说明">需求说明</h3>
+
+<blockquote>
+  <p>最近公司提出需求双击.VT5文件能直接启动VITIE5.EXE程序。.VT5文件是我公司自己的数据文件。实际是一个经过加密的Access数据库。Vitie5是我们开发的一款C/S架构的软件。有点特殊的是:不能直接启动Vitie5.exe需要从Agency5.exe启动Vitie5.exe。Agency5.exe是一个菜单程序。程序的有效性都在这里进行认证所以没法绕过Agency5.exe进行启动Vitie5.exe。OK，现状已经明白了。开始上主菜。</p>
+</blockquote>
+
+</div><div id="wmd-preview-section-1391" class="wmd-preview-section preview-content">
+
+<h3 id="解决方案">解决方案</h3>
+
+<blockquote>
+  <p>Agency5增加接受VT5路径参数(为P)。如果存在路径P，则查找Agency5进程。如果查找到已存在的Agency5进程、则对该进程发送消息(传递路径参数)。该进程接受消息并启动VT5进程 。如果找不到已存在的进程、则启动Agency5。且在完成验证后、启动VT5。</p>
+</blockquote>
+
+<p><strong>方案里有一个潜在的需求:保持Agencu5单进程。</strong> <br>
+这里为了代码的统一控制。我增加了一个线程负责启动Vitie5.exe。该线程在认证正确结束后启动，负责不断的从<code>List&lt;String&gt;</code>拿取任务进行处理。而消息的处理和启动时候的任务只需要对<code>List&lt;String&gt;</code>追加元素即可。</p>
+
+</div><div id="wmd-preview-section-1647" class="wmd-preview-section preview-content">
+
+<h3 id="references">References:</h3>
+
+<p>1.<a href="http://blog.csdn.net/lfw19891101/article/details/6103032" target="_blank">文件关联注册表操作</a> <br>
+2.<a href="http://www.tuicool.com/articles/EVNZr2z" target="_blank">进程通信</a></p></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
