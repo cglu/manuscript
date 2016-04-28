@@ -1,0 +1,105 @@
+<!DOCTYPE html><html><head><title>Mac下安装Laravel Homestead</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-5671" class="wmd-preview-section preview-content">
+
+</div><div id="wmd-preview-section-5728" class="wmd-preview-section preview-content">
+
+<h2 id="mac下安装laravel-homestead">Mac下安装Laravel Homestead</h2>
+
+</div><div id="wmd-preview-section-6447" class="wmd-preview-section preview-content">
+
+<h3 id="1简介">1.简介</h3>
+
+<p>Laravel致力于将整个PHP开发体验变得让人愉悦，包括本地开发环境。 <br>
+Vagrant提供了一个便捷的方式来管理和设置虚拟机。Laravel Homestead是一个官方的、预安装好的Vagrant盒子，该盒子提供了一流的开发环境，有了它，我们不再需要在本地环境安装PHP、HHVM、web服务器以及其它服务器软件，我们也完全不用再担心误操作搞乱操作系统——因为Vagrant盒子是一次性的，如果出现错误，可以在数分钟内销毁并重新创建该Vagrant盒子！ <br>
+Homestead可以运行在Windows、Mac以及Linux系统上，其中已经安装好了Nginx、PHP5.6、MySQL、Postgres、Redis、Memcached、Node以及很多其它开发牛逼Laravel应用所需要的东西。</p></div><div id="wmd-preview-section-6006" class="wmd-preview-section preview-content">
+
+<h4 id="11-包含软件">1.1 包含软件</h4>
+
+<p>Ubuntu 14.04 <br>
+Git <br>
+PHP 5.6 / 7.0 <br>
+Xdebug <br>
+HHVM <br>
+Nginx <br>
+MySQL <br>
+Sqlite3 <br>
+Postgres <br>
+Composer <br>
+Node (With PM2, Bower, Grunt, and Gulp) <br>
+Redis <br>
+Memcached (PHP 5.x Only) <br>
+Beanstalkd <br>
+Laravel Envoy <br>
+Blackfire Profiler</p>
+
+</div><div id="wmd-preview-section-6007" class="wmd-preview-section preview-content">
+
+<h3 id="2安装">2.安装</h3>
+
+<blockquote>
+  <p>在正式安装Homestead之前，需要先安装<a href="http://undefined" target="_blank">Vagrant</a>和<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank">Virtualbox</a> <br>
+   Vagrant和Virtualbox安装我是通过brew cask来安装的，我的Mac上之前已经安装；没有安装的的小伙伴请参考《<a href="http://www.9696e.com/archives/1263" target="_blank">Homebrew-cask Mac下的简易软件管理工具</a>》</p>
+</blockquote></div><div id="wmd-preview-section-6433" class="wmd-preview-section preview-content">
+
+<h4 id="21-安装vagrant">2.1 安装Vagrant</h4>
+
+<p>在终端执行命令:</p></div><div id="wmd-preview-section-5674" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs armasm"><span class="hljs-comment line-number">1.</span><span class="hljs-keyword">brew </span>cask install vagrant<br></code></pre>
+
+</div><div id="wmd-preview-section-6418" class="wmd-preview-section preview-content">
+
+<h4 id="22-安装virtualbox">2.2 安装Virtualbox</h4>
+
+<p>在终端执行命令:</p></div><div id="wmd-preview-section-5676" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs armasm"><span class="hljs-comment line-number">1.</span><span class="hljs-keyword">brew </span>cask install virtualbox<br></code></pre>
+
+</div><div id="wmd-preview-section-6403" class="wmd-preview-section preview-content">
+
+<h4 id="23-添加homestead盒子到vagrant">2.3 添加Homestead盒子到Vagrant</h4>
+
+<p>Vagrant和Virtualbox安装好之后，在终端执行以下命令下载<strong>laravel/homesterad</strong>盒子。下载可能花费一些时间。我用的Green VPN大概50分钟左右。</p></div><div id="wmd-preview-section-5678" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs armasm"><span class="hljs-comment line-number">1.</span><span class="hljs-label">vagrant</span> <span class="hljs-keyword">box </span><span class="hljs-keyword">add </span>laravel/homestead<br></code></pre>
+
+</div><div id="wmd-preview-section-6388" class="wmd-preview-section preview-content">
+
+<h4 id="24-安装homestead">2.4 安装Homestead</h4>
+
+<p>1.克隆Homestead仓库</p></div><div id="wmd-preview-section-5680" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs crmsh"><span class="hljs-comment line-number">1.</span>git <span class="hljs-keyword">clone</span> <span class="hljs-title">https</span>://github.com/laravel/homestead.git Homestead<br></code></pre>
+
+<p>克隆完成后，在Homestead目录下运行<code>bash init.sh</code>命令来创建<code>Homestead.yaml</code>配置文件,<code>Homestead.yaml</code>配置文件位于<code>~/.homestead目录</code> <br>
+2.配置Homestead <br>
+运行命令<code>vim ~/.homestead/Homestead.yaml</code>，下面是配置完成之后的内容:</p>
+
+</div><div id="wmd-preview-section-5681" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>---<br><span class="hljs-comment line-number">2.</span><span class="hljs-preprocessor">#在/etc/hosts文件中增加:<span class="hljs-number">192.168</span><span class="hljs-number">.10</span><span class="hljs-number">.10</span>  homestead.app</span><br><span class="hljs-comment line-number">3.</span>ip: <span class="hljs-string">"192.168.10.10"</span> <br><span class="hljs-comment line-number">4.</span>memory: <span class="hljs-number">2048</span><br><span class="hljs-comment line-number">5.</span>cpus: <span class="hljs-number">1</span><br><span class="hljs-comment line-number">6.</span>provider: virtualbox<br><span class="hljs-comment line-number">7.</span><br><span class="hljs-comment line-number">8.</span>authorize: ~/.ssh/id_rsa.pub<br><span class="hljs-comment line-number">9.</span><br><span class="hljs-comment line-number">10.</span>keys:<br><span class="hljs-comment line-number">11.</span>    - ~/.ssh/id_rsa<br><span class="hljs-comment line-number">12.</span><br><span class="hljs-comment line-number">13.</span>folders:<br><span class="hljs-comment line-number">14.</span>    - <span class="hljs-built_in">map</span>: ~/Code <span class="hljs-preprocessor">#在宿主目录下创建Code目录，存放项目源码</span><br><span class="hljs-comment line-number">15.</span>      to: /home/vagrant/Code<br><span class="hljs-comment line-number">16.</span><br><span class="hljs-comment line-number">17.</span>sites:<br><span class="hljs-comment line-number">18.</span>    - <span class="hljs-built_in">map</span>: homestead.app<br><span class="hljs-comment line-number">19.</span>      to: /home/vagrant/Code/Laravel/<span class="hljs-keyword">public</span><br><span class="hljs-comment line-number">20.</span><br><span class="hljs-comment line-number">21.</span>databases:<br><span class="hljs-comment line-number">22.</span>    - homestead<br><span class="hljs-comment line-number">23.</span><br><span class="hljs-comment line-number">24.</span><span class="hljs-preprocessor"># blackfire:</span><br><span class="hljs-comment line-number">25.</span><span class="hljs-preprocessor">#     - id: foo</span><br><span class="hljs-comment line-number">26.</span><span class="hljs-preprocessor">#       token: bar</span><br><span class="hljs-comment line-number">27.</span><span class="hljs-preprocessor">#       client-id: foo</span><br><span class="hljs-comment line-number">28.</span><span class="hljs-preprocessor">#       client-token: bar</span><br><span class="hljs-comment line-number">29.</span><br><span class="hljs-comment line-number">30.</span><span class="hljs-preprocessor"># ports:</span><br><span class="hljs-comment line-number">31.</span><span class="hljs-preprocessor">#     - send: <span class="hljs-number">50000</span></span><br><span class="hljs-comment line-number">32.</span><span class="hljs-preprocessor">#       to: <span class="hljs-number">5000</span></span><br><span class="hljs-comment line-number">33.</span><span class="hljs-preprocessor">#     - send: <span class="hljs-number">7777</span></span><br><span class="hljs-comment line-number">34.</span><span class="hljs-preprocessor">#       to: <span class="hljs-number">777</span></span><br><span class="hljs-comment line-number">35.</span><span class="hljs-preprocessor">#       protocol: udp</span><br></code></pre>
+
+<p>3.启动VagrantBox <br>
+在Homestead目录下运行<code>vagrant up</code>命令，Vagrant将会启动虚拟机并加载配置。当启动完毕，在浏览器中输入<code>http://homestead.app</code>域名就可以访问站点了。</p>
+
+</div><div id="wmd-preview-section-6374" class="wmd-preview-section preview-content">
+
+<h4 id="25-常用命令">2.5 常用命令</h4>
+
+<blockquote>
+  <p>以下目录必须在Homsteam目录中运行！！！</p>
+</blockquote></div><div id="wmd-preview-section-5683" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="language-` hljs crystal"><span class="hljs-comment line-number">1.</span><span class="hljs-variable">$ </span>vagrant init  <span class="hljs-comment"># 初始化</span><br><span class="hljs-comment line-number">2.</span><span class="hljs-variable">$ </span>vagrant up  <span class="hljs-comment"># 启动虚拟机</span><br><span class="hljs-comment line-number">3.</span><span class="hljs-variable">$ </span>vagrant halt  <span class="hljs-comment"># 关闭虚拟机</span><br><span class="hljs-comment line-number">4.</span><span class="hljs-variable">$ </span>vagrant reload  <span class="hljs-comment"># 重启虚拟机</span><br><span class="hljs-comment line-number">5.</span><span class="hljs-variable">$ </span>vagrant ssh  <span class="hljs-comment"># SSH 至虚拟机</span><br><span class="hljs-comment line-number">6.</span><span class="hljs-variable">$ </span>vagrant status  <span class="hljs-comment"># 查看虚拟机运行状态</span><br><span class="hljs-comment line-number">7.</span><span class="hljs-variable">$ </span>vagrant destroy  <span class="hljs-comment"># 销毁当前虚拟机</span><br><span class="hljs-comment line-number">8.</span><span class="hljs-variable">$ </span>vagrant package  <span class="hljs-comment">#打包</span><br></code></pre>
+
+</div><div id="wmd-preview-section-6891" class="wmd-preview-section preview-content">
+
+<h3 id="3参考资料">3.参考资料:</h3>
+
+<ol><li rel="1"><a href="https://segmentfault.com/a/1190000000264347" target="_blank">使用 Vagrant 打造跨平台开发环境</a></li>
+<li rel="2"><a href="http://laravelacademy.org/post/51.html" target="_blank">[ Laravel 5.1 文档 ] 开始 —— Laravel Homestead</a></li>
+</ol></div><div id="wmd-preview-section-6496" class="wmd-preview-section preview-content"></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
