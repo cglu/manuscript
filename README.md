@@ -33,7 +33,7 @@ markdown文章临时存放地址。
 
 00014          Mac下安装Laravel Homestead
 
-00015
+00015          Laravel框架中添加自定义类和函数
 
 00016
 

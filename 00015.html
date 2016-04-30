@@ -1,0 +1,79 @@
+<!DOCTYPE html><html><head><title>Laravel框架中添加自定义类和函数</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-21" class="wmd-preview-section preview-content">
+
+</div><div id="wmd-preview-section-445" class="wmd-preview-section preview-content">
+
+<h2 id="laravel框架中添加自定义类和函数">Laravel框架中添加自定义类和函数</h2>
+
+<blockquote>
+  <p>在我们开发的应用中经常会自定义全局公用函数和类库。那在Laravel如何规范的添加这些内容呢？OK,客观别急，本文的主要内容就是在阐述这个问题的答案。</p>
+</blockquote></div><div id="wmd-preview-section-2770" class="wmd-preview-section preview-content">
+
+<h4 id="添加自定义函数">添加自定义函数</h4>
+
+<blockquote>
+  <p>自定义函数的加载使用的composer来完成。以前的做法很low，直接在<code>public/index.php</code>中加载自定义函数的PHP文件。</p>
+</blockquote></div><div id="wmd-preview-section-2783" class="wmd-preview-section preview-content">
+
+<h5 id="1创建文件apphelpershelpersphp">1.创建文件app/Helpers/helpers.php</h5></div><div id="wmd-preview-section-2232" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xml"><span class="hljs-comment line-number">1.</span><span class="php"><span class="hljs-preprocessor">&lt;?php</span><br><span class="hljs-comment line-number">2.</span><span class="hljs-keyword">if</span> (! function_exists(<span class="hljs-string">'test'</span>)) {<br><span class="hljs-comment line-number">3.</span><br><span class="hljs-comment line-number">4.</span>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span><span class="hljs-params">()</span><br><span class="hljs-comment line-number">5.</span>    </span>{<br><span class="hljs-comment line-number">6.</span>        <span class="hljs-keyword">echo</span> <span class="hljs-string">"我是自定义函数类库.&lt;/br&gt;"</span>;<br><span class="hljs-comment line-number">7.</span>    }<br><span class="hljs-comment line-number">8.</span>}<br><span class="hljs-comment line-number">9.</span></span><br></code></pre></div><div id="wmd-preview-section-1174" class="wmd-preview-section preview-content">
+
+<h5 id="2编辑应用中的appcomposerjson文件">2.编辑应用中的app/composer.json文件</h5>
+
+<p>在composer.json中的<code>autoload</code>对象的<code>files</code>字段中增加helpers.php文件的相对路径(相对于当前composer.json文件)。</p></div><div id="wmd-preview-section-835" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs prolog"><span class="hljs-comment line-number">1.</span>...<br><span class="hljs-comment line-number">2.</span>  <span class="hljs-string">"autoload"</span>: {<br><span class="hljs-comment line-number">3.</span>        <span class="hljs-string">"classmap"</span>: [<br><span class="hljs-comment line-number">4.</span>            <span class="hljs-string">"database"</span><br><span class="hljs-comment line-number">5.</span>        ],<br><span class="hljs-comment line-number">6.</span>        <span class="hljs-string">"psr-4"</span>: {<br><span class="hljs-comment line-number">7.</span>            <span class="hljs-string">"App\\"</span>: <span class="hljs-string">"app/"</span><br><span class="hljs-comment line-number">8.</span>        },<span class="hljs-string">"files"</span>: [<br><span class="hljs-comment line-number">9.</span>            <span class="hljs-string">"app/Helpers/helpers.php"</span><br><span class="hljs-comment line-number">10.</span><br><span class="hljs-comment line-number">11.</span>        ]<br><span class="hljs-comment line-number">12.</span>    }<br><span class="hljs-comment line-number">13.</span>...<br></code></pre></div><div id="wmd-preview-section-3699" class="wmd-preview-section preview-content">
+
+<h5 id="3重建composer自动加载信息">3.重建composer自动加载信息</h5>
+
+<p>在app目录下运行命令<code>composer dump-autoload</code>，使composer重新构建加载信息，这里主要是更新了<code>vendor/composer/autoload_files.php</code>文件.可以打开这个文件看到有</p>
+
+</div><div id="wmd-preview-section-3924" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span><span class="hljs-string">'d21d43db5f6e840ee7b10744ec7fdf66'</span> =&gt; <span class="hljs-variable">$baseDir</span> . <span class="hljs-string">'/app/Helpers/helpers.php'</span>,<br></code></pre>
+
+<p>很明显<code>helpers.php</code>可以被加载了。OK,到这里自定义函数就搞定了。你可以在任何地方调用<code>test</code>函数了。</p></div><div id="wmd-preview-section-3756" class="wmd-preview-section preview-content">
+
+<h5 id="4测试">4.测试</h5>
+
+<p>在<code>app/Http/routes.php</code>文件中调用<code>test</code>函数.</p>
+
+</div><div id="wmd-preview-section-3757" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs php"><span class="hljs-comment line-number">1.</span>Route::get(<span class="hljs-string">'/'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{<br><span class="hljs-comment line-number">2.</span>    <span class="hljs-keyword">echo</span> <span class="hljs-string">"--------自定义全局函数---------&lt;/br&gt;"</span>;<br><span class="hljs-comment line-number">3.</span>    test(); <br><span class="hljs-comment line-number">4.</span>   <span class="hljs-comment">// return view('welcome');</span><br><span class="hljs-comment line-number">5.</span>});<br></code></pre>
+
+<p>以上程序会在页面打印出:</p>
+
+</div><div id="wmd-preview-section-3758" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs brainfuck"><span class="hljs-comment line-number">1.</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">自定义全局函数</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><br><span class="hljs-comment line-number">2.</span><span class="hljs-comment">我是自定义函数类库</span><span class="hljs-string">.</span><br></code></pre></div><div id="wmd-preview-section-7695" class="wmd-preview-section preview-content">
+
+<h4 id="添加自定义类库">添加自定义类库</h4>
+
+<blockquote>
+  <p>自定义类库的添加、同自定义函数差不多。本来我是想讲另外一种东西—<strong>Laravel的服务提供者+Laravel的门面模式的使用</strong>。临时决定放到下一篇文章单独讲解。这里主要讲解下利用composer加载自定义类库的做法。</p>
+</blockquote></div><div id="wmd-preview-section-4900" class="wmd-preview-section preview-content">
+
+<h5 id="1新建文件pplibrariesmyclassphp">1.新建文件pp/Libraries/MyClass.php</h5>
+
+</div><div id="wmd-preview-section-5957" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xml"><span class="hljs-comment line-number">1.</span><span class="php"><span class="hljs-preprocessor">&lt;?php</span><br><span class="hljs-comment line-number">2.</span><span class="hljs-keyword">namespace</span> <span class="hljs-title">App</span>\<span class="hljs-title">Libraries</span>;<br><span class="hljs-comment line-number">3.</span><br><span class="hljs-comment line-number">4.</span><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyClass</span><br><span class="hljs-comment line-number">5.</span></span>{<br><span class="hljs-comment line-number">6.</span>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span><span class="hljs-params">()</span><br><span class="hljs-comment line-number">7.</span>    </span>{<br><span class="hljs-comment line-number">8.</span>        <span class="hljs-keyword">return</span> <span class="hljs-string">"我是自定义test函数&lt;/br&gt;"</span>;<br><span class="hljs-comment line-number">9.</span>    }<br><span class="hljs-comment line-number">10.</span>}<br><span class="hljs-comment line-number">11.</span></span><br></code></pre>
+
+<p>OK，结束。这个时候就可以调用<code>MyClass</code>的<code>test</code>函数了。觉得很神奇?那请你注意下<code>MyClass</code>类的命名空间，再打开<code>app/composer.json文件</code>，会看到:</p>
+
+</div><div id="wmd-preview-section-8580" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs erlang"><span class="hljs-comment line-number">1.</span>...<br><span class="hljs-comment line-number">2.</span> <span class="hljs-string">"psr-4"</span>: <span class="hljs-tuple">{<br><span class="hljs-comment line-number">3.</span>            <span class="hljs-string">"App\\"</span>: <span class="hljs-string">"app/"</span><br><span class="hljs-comment line-number">4.</span>        }</span><br><span class="hljs-comment line-number">5.</span>...<br></code></pre>
+
+<p>可以看到命名空间到路径的映射已经被建立，加载信息会缓存到<code>vendor/composer/autoload_psr4.php</code>文件里。但这种方式、会具有依赖关系，我们low-low的使用还是满足需求的，但问题的确存在，我们该怎么解决呢？别急，Laravel的核心就是在解决依赖这个问题,请参考下一篇文章<a href="http://luhu.in/article/46" target="_blank">Laravel的服务提供者+Laravel的门面模式的配合使用</a></p></div><div id="wmd-preview-section-8707" class="wmd-preview-section preview-content">
+
+<h4 id="资料">资料</h4>
+
+<p>1.<a href="https://github.com/jifei/php-fig-standards" target="_blank">PSR规范中文版 </a> <br>
+2.<a href="http://yansu.org/2014/03/20/use-other-libraries-in-laravel.html" target="_blank">在Laravel中使用自己的类库三种方式</a></p></div><div id="wmd-preview-section-8690" class="wmd-preview-section preview-content"></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
