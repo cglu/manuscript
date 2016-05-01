@@ -1,0 +1,83 @@
+<!DOCTYPE html><html><head><title>Homestead启用Xdebug进行断点调试</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-305" class="wmd-preview-section preview-content">
+
+<p>Vagrant进阶之Laravel Homested打包分发</p>
+
+<blockquote>
+  <p>使用Laravel Homestead有两三天了。使用起来感觉还是很清爽的。但也发现一些问题，比如:在使用Homestead的开发过程中，XDEBUG是必须要用起来的。我在配置XDEBUG的过程中，修改了homestead的配置文件，假设我们在公司的环境下。接下来肯定要打包分发了。那么该怎么做呢？OK，一切缘起于Homestead中Xdebug的启用…</p>
+</blockquote>
+
+</div><div id="wmd-preview-section-653" class="wmd-preview-section preview-content">
+
+<h4 id="homestead启用xdebug进行断点调试">Homestead启用Xdebug进行断点调试</h4>
+
+<p>1.启动Homestead，并登陆进行去。切换到root用户，切换命令<code>sudo su</code> <br>
+2.运行命令<code>vim /etc/php/7.0/fpm/conf.d/20-xdebug.ini</code>编辑xdebug配置文件</p></div><div id="wmd-preview-section-1630" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs cpp"><span class="hljs-comment line-number">1.</span>xdebug.remote_enable=<span class="hljs-number">1</span><br><span class="hljs-comment line-number">2.</span>xdebug.remote_handler=dbgp <br><span class="hljs-comment line-number">3.</span>xdebug.remote_port=<span class="hljs-number">9000</span><br><span class="hljs-comment line-number">4.</span>xdebug.remote_connect_back=<span class="hljs-number">1</span><br></code></pre>
+
+<p>编辑好之后保存，运行命令<code>service php7.0-fpm restart</code>重启php7-fpm。</p>
+
+<p>3.安装chrome扩展Xdebug helper。请参考另一篇文章<a href="http://luhu.in/article/40" target="_blank">使用xdebug-help增强PHP调试体验</a></p>
+
+<p>4.在zend stuido中添加调试服务器，这个可以参考另一篇文章<a href="http://luhu.in/article/12" target="_blank">Zend Studio+Xampp+Xdebug调试环境安装详解(史上最全)</a>。需 <br>
+<strong>要注意的是:</strong></p>
+
+<ol><li rel="1">不是选择添加<em>local apache http server</em>服务器，而是<em>Generic PHP Server</em>。</li>
+<li rel="2"><strong>Xdebug Configuraton</strong>中<code>Accept remote session(JIT)</code>设置为<code>any</code>.使其允许接受任意服务器上PHP调试。</li>
+</ol>
+
+<p>至此，就可以愉快的调试了。但是在每次调试的时候会弹出<code>Path Mapping-Select Local Resource</code>窗口。每次需要选择需要调试的PHP文件。可能是调试服务器的路径映问题。先用起来再说。</p>
+
+</div><div id="wmd-preview-section-2222" class="wmd-preview-section preview-content">
+
+<h4 id="打包分发homestead">打包分发Homestead</h4>
+
+<blockquote>
+  <p>上面已经完成了Xdebug配置工作。接下来我们假设:如果想把经过自定义的Homestead打包分发给同事该怎么办？怎么打包、同事怎么使用?OK,我们继续下去。</p>
+</blockquote>
+
+</div><div id="wmd-preview-section-4001" class="wmd-preview-section preview-content">
+
+<h5 id="1-打包">1. 打包</h5>
+
+<p>关闭homestead，执行命令<code>vagrant package <br>
+</code>进行打包。该命令会在当前目录下生成<code>package.box</code>文件，这个就是最新的(包含Xdebug设置的)homestead盒子。接下来把这个包传送给同事。其次位于<code>~/.homestead/Homested.yaml</code>的配置文件也需要一起传送给同事。</p></div><div id="wmd-preview-section-2731" class="wmd-preview-section preview-content">
+
+<h4 id="2-同事使用">2. 同事使用</h4>
+
+<p>1.添加盒子,假设盒子在<code>~/box/package.box</code>，则在终端运行</p></div><div id="wmd-preview-section-2867" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs processing"><span class="hljs-comment line-number">1.</span>vagrant <span class="hljs-built_in">box</span> <span class="hljs-built_in">add</span> luhu/homestead ~/<span class="hljs-built_in">box</span>/<span class="hljs-keyword">package</span>.<span class="hljs-built_in">box</span><br></code></pre>
+
+<ol start="1"><li rel="1">下载Homestead仓库</li>
+</ol></div><div id="wmd-preview-section-3084" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs crmsh"><span class="hljs-comment line-number">1.</span>git <span class="hljs-keyword">clone</span> <span class="hljs-title">https</span>://github.com/laravel/homestead.git Homestead<br></code></pre>
+
+<p>注意:homested仓库默认的盒子名称是编辑<code>laravel/homestead</code>,我这里定义为了<code>luhu/homestead</code>。所以需要编辑<code>vim scripts/homestead.rb</code>文件。</p>
+
+</div><div id="wmd-preview-section-5044" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs prolog"><span class="hljs-comment line-number">1.</span>....<br><span class="hljs-comment line-number">2.</span><span class="hljs-atom">config</span>.<span class="hljs-atom">vm</span>.<span class="hljs-atom">box</span> = <span class="hljs-atom">settings</span>[<span class="hljs-string">"box"</span>] ||= <span class="hljs-string">"luhu/homestead"</span><br><span class="hljs-comment line-number">3.</span><span class="hljs-atom">config</span>.<span class="hljs-atom">vm</span>.<span class="hljs-atom">box_version</span> = <span class="hljs-atom">settings</span>[<span class="hljs-string">"version"</span>] ||= <span class="hljs-string">"&gt;= 0.0.0"</span><br><span class="hljs-comment line-number">4.</span><span class="hljs-atom">config</span>.<span class="hljs-atom">vm</span>.<span class="hljs-atom">hostname</span> = <span class="hljs-atom">settings</span>[<span class="hljs-string">"hostname"</span>] ||= <span class="hljs-string">"homestead"</span><br><span class="hljs-comment line-number">5.</span>....<br><span class="hljs-comment line-number">6.</span>#如果已经存在<span class="hljs-atom">homestead</span>-<span class="hljs-number">7</span>，虚拟机名称这里也需要改下，由于我是一台机器上做测试。所以需要改动。我改为了<span class="hljs-atom">luhu</span>/<span class="hljs-atom">homestead</span>-<span class="hljs-number">7</span><br><span class="hljs-comment line-number">7.</span><span class="hljs-atom">vb</span>.<span class="hljs-atom">name</span> = <span class="hljs-atom">settings</span>[<span class="hljs-string">"name"</span>] ||= <span class="hljs-string">"homestead-7"</span><br></code></pre>
+
+<p>运行命令<code>bash init.sh</code>,会产生~/homestead目录。<code>Homestead.yaml</code>配置文件就在其中。用刚才传送的过来的<code>Homestead.yaml</code>覆盖这个文件。 </p>
+
+<p>至此，大功告成，只要运行命令<code>vagrant up</code>同事就可以得到一模一样的开发环境了。</p>
+
+</div><div id="wmd-preview-section-6485" class="wmd-preview-section preview-content">
+
+<h4 id="结束语">结束语</h4>
+
+<p>遇到一些问题，解决一些问题。总会能额外的发现新的东西。比如:以前遇到过Zend的调试中不能通过输入代码查看变量的问题。这次我稍微注意了下。在其左侧有一个<code>表达式</code>的小窗口。可以达到这个目标。另外通过写文章。把会了的东西记录下来。对其认知就变得更加透彻。也许学会了只要一个小时。但把其整理出文章则需要三到四倍的时间。写文章真的不错！</p></div><div id="wmd-preview-section-5034" class="wmd-preview-section preview-content">
+
+<h4 id="参考资料">参考资料</h4>
+
+<ol><li rel="1"><a href="https://segmentfault.com/a/1190000000264347" target="_blank">使用 Vagrant 打造跨平台开发环境</a></li>
+<li rel="2"><a href="http://www.tuicool.com/articles/zYfmqmM" target="_blank">PHPStorm + Homestead + Xdebug + Chrome Xdebug 断点调试</a></li>
+<li rel="3"><a href="http://laravelacademy.org/post/2749.html" target="_blank">[ Laravel 5.2 文档 ] 开始 —— Laravel Homestead</a></li>
+</ol></div><div id="wmd-preview-section-4991" class="wmd-preview-section preview-content"></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
