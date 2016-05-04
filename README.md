@@ -37,7 +37,7 @@ markdown文章临时存放地址。
 
 00016          Vagrant进阶之Laravel Homested打包分发
 
-00017
+00017          从Eloquent ORM的CURD看Laravel Eloquent的实现
 
 00018
 

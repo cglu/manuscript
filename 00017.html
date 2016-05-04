@@ -1,0 +1,107 @@
+<!DOCTYPE html><html><head><title>从Eloquent ORM的CURD看Laravel Eloquent的实现</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-9208" class="wmd-preview-section preview-content">
+
+<p></p></div><div id="wmd-preview-section-9293" class="wmd-preview-section preview-content">
+
+<h2 id="从eloquent-orm的curd看laravel-eloquent的实现">从Eloquent ORM的CURD看Laravel Eloquent的实现</h2>
+
+<blockquote>
+  <p>“Laravel 的 Eloquent ORM 提供了漂亮、简洁的 ActiveRecord 实现来和数据库进行交互。每个数据库表都有一个对应的「模型」可用来跟数据表进行交互。你可以通过模型查找数据表内的数据，以及将记录添加到数据表中。”<strong>这是官方对Eloquent的解释。看起来一头雾水、云里雾里的样子。什么是ActiveRecord？Eloquent是怎么工作的?为什么Eloquent又会如此的神奇呢？</strong>OK，带着这些问题往下吧….</p>
+</blockquote></div><div id="wmd-preview-section-9182" class="wmd-preview-section preview-content">
+
+<h4 id="什么是activerecord">什么是ActiveRecord</h4>
+
+<p>ActiveRecord也属于ORM层，由Rails最早提出，遵循标准的ORM模型：表映射到记录，记录映射到对象，字段映射到对象属性。配合遵循的命名和配置惯例，能够很大程度的快速实现模型的操作，而且简洁易懂。</p>
+
+<p>ActiveRecord的主要思想是：</p>
+
+<ol><li rel="1">每一个数据库表对应创建一个类，类的每一个对象实例对应于数据库中表的一行记录；通常表的每个字段在类中都有相应的Field；</li>
+<li rel="2">ActiveRecord同时负责把自己持久化，在ActiveRecord中封装了对数据库的访问，即CURD;；</li>
+<li rel="3">ActiveRecord是一种领域模型(Domain Model)，封装了部分业务逻辑；</li>
+</ol>
+
+<p>ActiveRecord比较适用于：</p>
+
+<ol><li rel="1">业务逻辑比较简单，当你的类基本上和数据库中的表一一对应时, ActiveRecord是非常方便的，即你的业务逻辑大多数是对单表操作；</li>
+<li rel="2">当发生跨表的操作时, 往往会配合使用事务脚本(Transaction Script)，把跨表事务提升到事务脚本中；</li>
+<li rel="3">ActiveRecord最大优点是简单, 直观。 一个类就包括了数据访问和业务逻辑. 如果配合代码生成器使用就更方便了； <br>
+这些优点使ActiveRecord特别适合WEB快速开发。</li>
+</ol>
+
+<p>ActiveRecord不适合于：</p>
+
+<ol><li rel="1">ActiveRecord虽然有业务逻辑, 但基本上都是基于单表的. 跨表逻辑一般会放到当发生跨表的操作时, 往往会配合使用事务脚本(Transaction Script)中. 如果对象间的关联越来越多, 你的事务脚本越来越庞大, 重复的代码越来越多, 你就要考虑Domain Model + O/R Mapper了;</li>
+<li rel="2">ActiveRecord保存了数据, 使它有时候看上去像数据传输对象(DTO). 但是ActiveRecord有数据库访问能力, 不要把它当DTO用. 尤其在跨越进程边界调用的时候, 不能传递ActiveRecord对象。</li>
+</ol>
+
+</div><div id="wmd-preview-section-9183" class="wmd-preview-section preview-content">
+
+<h4 id="我们重新再看eloquent">我们重新再看Eloquent</h4>
+
+<p>现在、我们再回头看开头的那段官方介绍。是不是明悟了些什么？如果有过Eloquent使用经验，感受应该更加明显。是的，没错。<strong>Eloquent对ActiveRecord的实现描述了表和模型之间的对应关系，制定了一个与表进行交互的框架。但注意，此刻、Eloquent还不具备交互的能力，那么交互是怎么实现的呢?</strong>。下面我们通过阅读Eloquent的源码来尝试说明这一点。 </p>
+
+</div><div id="wmd-preview-section-9184" class="wmd-preview-section preview-content">
+
+<h4 id="使用eloquent">使用Eloquent</h4>
+
+<blockquote>
+  <p>众所周知Eloquent模型都继承自<code>Illuminate\Database\Eloquent\Model</code>类。如果这个都不知道的话。请自行阅读<a href="http://undefined" target="_blank">官方文档</a>。 <br>
+  我们打开这个文件看一下。会发现诸如<code>create</code>,<code>save</code>,<code>update</code>,<code>destroy</code>方法。这实际就是我们一直使用的操作数据库的方法。我们找个代表性的<code>save</code>方法阅读下。</p>
+</blockquote>
+
+</div><div id="wmd-preview-section-9185" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span>public <span class="hljs-keyword">function</span> save(<span class="hljs-keyword">array</span> <span class="hljs-variable">$options</span> = [])<br><span class="hljs-comment line-number">2.</span>{<br><span class="hljs-comment line-number">3.</span>//获取查询构造器对象<br><span class="hljs-comment line-number">4.</span><span class="hljs-variable">$query</span> = <span class="hljs-variable">$this-</span>&gt;newQueryWithoutScopes();<br><span class="hljs-comment line-number">5.</span>//触发Eloquent的saving事件<br><span class="hljs-comment line-number">6.</span>if (<span class="hljs-variable">$this-</span>&gt;fireModelEvent(<span class="hljs-string">'saving'</span>) === false) {<br><span class="hljs-comment line-number">7.</span>return false;<br><span class="hljs-comment line-number">8.</span>} <br><span class="hljs-comment line-number">9.</span>if (<span class="hljs-variable">$this-</span>&gt;exists) {<br><span class="hljs-comment line-number">10.</span><span class="hljs-variable">$saved</span> = <span class="hljs-variable">$this-</span>&gt;performUpdate(<span class="hljs-variable">$query</span>, <span class="hljs-variable">$options</span>);<br><span class="hljs-comment line-number">11.</span>} <br><span class="hljs-comment line-number">12.</span>else {<br><span class="hljs-comment line-number">13.</span>//主要看这里，performInsert函数真正的开始操作数据库了<br><span class="hljs-comment line-number">14.</span><span class="hljs-variable">$saved</span> = <span class="hljs-variable">$this-</span>&gt;performInsert(<span class="hljs-variable">$query</span>, <span class="hljs-variable">$options</span>);<br><span class="hljs-comment line-number">15.</span>}<br><span class="hljs-comment line-number">16.</span>.....<br><span class="hljs-comment line-number">17.</span>}<br><span class="hljs-comment line-number">18.</span><br><span class="hljs-comment line-number">19.</span><br><span class="hljs-comment line-number">20.</span> protected <span class="hljs-keyword">function</span> performInsert(Builder <span class="hljs-variable">$query</span>, <span class="hljs-keyword">array</span> <span class="hljs-variable">$options</span> = [])<br><span class="hljs-comment line-number">21.</span>{<br><span class="hljs-comment line-number">22.</span>......<br><span class="hljs-comment line-number">23.</span>if (<span class="hljs-variable">$this-</span>&gt;getIncrementing()) {<br><span class="hljs-comment line-number">24.</span>//继续调用<br><span class="hljs-comment line-number">25.</span><span class="hljs-variable">$this-</span>&gt;insertAndSetId(<span class="hljs-variable">$query</span>, <span class="hljs-variable">$attributes</span>);<br><span class="hljs-comment line-number">26.</span>}<br><span class="hljs-comment line-number">27.</span>......<br><span class="hljs-comment line-number">28.</span>}<br><span class="hljs-comment line-number">29.</span><br><span class="hljs-comment line-number">30.</span>protected <span class="hljs-keyword">function</span> insertAndSetId(Builder <span class="hljs-variable">$query</span>, <span class="hljs-variable">$attributes</span>)<br><span class="hljs-comment line-number">31.</span>{<br><span class="hljs-comment line-number">32.</span>//终于开始真正的插入数据库了<br><span class="hljs-comment line-number">33.</span><span class="hljs-variable">$id</span> = <span class="hljs-variable">$query-</span>&gt;insertGetId(<span class="hljs-variable">$attributes</span>, <span class="hljs-variable">$keyName</span> = <span class="hljs-variable">$this-</span>&gt;getKeyName());<br><span class="hljs-comment line-number">34.</span>//保存新纪录的ID<br><span class="hljs-comment line-number">35.</span><span class="hljs-variable">$this-</span>&gt;setAttribute(<span class="hljs-variable">$keyName</span>, <span class="hljs-variable">$id</span>);<br><span class="hljs-comment line-number">36.</span>    }<br></code></pre>
+
+<p>贴了那么一大堆代码。想说明什么呢？请注意在真正的对数据库进行操作的时候，使用的是<code>$query</code>对象。如果你翻一翻<code>Model</code>类。会发现一系列<code>newQuery</code>,<code>query</code>,<code>newQueryWithoutScopes</code>函数。由此可见<code>$query</code>对Eloquent的重要性了。那么这个<code>$query</code>到底是个什么东西呢？仔细阅读的朋友应该发现了。我在注视里写到<code>它是查询构造器的实例</code>。没错、他实际就是<code>Illuminate\Database\Eloquent\Builder</code>这个东东。负责干嘛？提供了操作数据库的一系列接口。OK，到这里就明白了为什么Eloquent能操作数据库了。</p>
+
+</div><div id="wmd-preview-section-9186" class="wmd-preview-section preview-content">
+
+<h4 id="总结">总结</h4>
+
+<p>Eloquent实际是由于三部分组成:ActiveRecord的实现和数据库访问接口、表关联关系的描述(暂时没看、略去不说)。我们操作都在对象的层次。直到某一时刻，比如调用了<code>save</code>函数。才把对象写入到数据库里。</p>
+
+</div><div id="wmd-preview-section-9187" class="wmd-preview-section preview-content">
+
+<h4 id="扩展阅读">扩展阅读</h4>
+
+<p>细心的朋友会注意。比如我可以这么使用模型类。假设模型类是User。我可以User::firstOrNew([……]);来创建用户。打开<code>Illuminate\Database\Eloquent\Model</code>类找一下。咦?没有这个函数。怎么回事、怎么回事？这么神奇。别急、先告诉你们<code>firstOrNew</code>函数属于<code>Illuminate\Database\Eloquent\Builder</code>。接下来我们再在<code>Model</code>类查找下<code>__call</code>方法。哇、原来是这样做的.</p>
+
+</div><div id="wmd-preview-section-9188" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span> public <span class="hljs-keyword">function</span> __call(<span class="hljs-variable">$method</span>, <span class="hljs-variable">$parameters</span>)<br><span class="hljs-comment line-number">2.</span>    {<br><span class="hljs-comment line-number">3.</span>        if (in_array(<span class="hljs-variable">$method</span>, [<span class="hljs-string">'increment'</span>, <span class="hljs-string">'decrement'</span>])) {<br><span class="hljs-comment line-number">4.</span>            return call_user_func_array([<span class="hljs-variable">$this</span>, <span class="hljs-variable">$method</span>], <span class="hljs-variable">$parameters</span>);<br><span class="hljs-comment line-number">5.</span>        }<br><span class="hljs-comment line-number">6.</span>        //获取查询构造器对象<br><span class="hljs-comment line-number">7.</span>        <span class="hljs-variable">$query</span> = <span class="hljs-variable">$this-</span>&gt;newQuery();<br><span class="hljs-comment line-number">8.</span>        //调用函数<br><span class="hljs-comment line-number">9.</span>        return call_user_func_array([<span class="hljs-variable">$query</span>, <span class="hljs-variable">$method</span>], <span class="hljs-variable">$parameters</span>);<br><span class="hljs-comment line-number">10.</span>    }<br></code></pre>
+
+<p>这就是类通过提供静态魔术方法<code>__callStatic</code>,将对静态函数的访问映射到真正的方法上的做法。</p>
+
+<p>这里多说一点。如果再看<code>User::where()-&gt;where()</code>也不感觉到迷茫了。分解为:</p>
+
+</div><div id="wmd-preview-section-9189" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span>//走魔术方法__callStatic，构建<span class="hljs-variable">$query</span>对象。<span class="hljs-keyword">where</span>函数返回本身<br><span class="hljs-comment line-number">2.</span><span class="hljs-variable">$query</span>=User::where();<br><span class="hljs-comment line-number">3.</span><span class="hljs-variable">$query-</span>&gt;<span class="hljs-keyword">where</span>()-&gt;....不拉不拉的调用<br></code></pre>
+
+</div><div id="wmd-preview-section-9190" class="wmd-preview-section preview-content">
+
+<h2 id="我是华丽的分割线">——————我是华丽的分割线———————</h2>
+
+<p>讲个额外的话题。不想另起篇幅了。在阅读<code>Model</code>的时候发现一个编码小技巧。</p>
+
+</div><div id="wmd-preview-section-9191" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span> public static <span class="hljs-keyword">function</span> all(<span class="hljs-variable">$columns</span> = [<span class="hljs-string">'*'</span>])<br><span class="hljs-comment line-number">2.</span>{<br><span class="hljs-comment line-number">3.</span><span class="hljs-variable">$columns</span> = is_array(<span class="hljs-variable">$columns</span>) ? <span class="hljs-variable">$columns</span> : func_get_args();<br><span class="hljs-comment line-number">4.</span><br><span class="hljs-comment line-number">5.</span><span class="hljs-variable">$instance</span> = new static;<br><span class="hljs-comment line-number">6.</span><br><span class="hljs-comment line-number">7.</span>return <span class="hljs-variable">$instance-</span>&gt;newQuery()-&gt;get(<span class="hljs-variable">$columns</span>);<br><span class="hljs-comment line-number">8.</span>}<br><span class="hljs-comment line-number">9.</span>调用的话可以:<br><span class="hljs-comment line-number">10.</span>all(<span class="hljs-string">'*'</span>);<br><span class="hljs-comment line-number">11.</span>all(<span class="hljs-string">'name'</span>,<span class="hljs-string">'passwd'</span>);<br><span class="hljs-comment line-number">12.</span>all([<span class="hljs-string">'name'</span>,<span class="hljs-string">'passwd'</span>]);<br></code></pre>
+
+<p>是不是发现参数传递很灵活。<code>Model</code>的<code>destroy</code>函数就是这么干的。很巧妙、很神奇。令人欣喜。</p>
+
+</div><div id="wmd-preview-section-9192" class="wmd-preview-section preview-content">
+
+<h4 id="参考资料">参考资料</h4>
+
+<ol><li rel="1"><a href="http://blog.ja168.net/laravel-eloquent-orm-guide-902.html" target="_blank">Laravel Eloquent Orm 使用指南</a></li>
+<li rel="2"><a href="http://blog.sina.com.cn/s/blog_60fcb5a10100x984.html" target="_blank">ActiveRecord模式</a></li>
+<li rel="3"><a href="http://laravel-china.org/docs/5.1/eloquent" target="_blank">Laravel 5.1 LTS Eloquent</a></li>
+</ol>
+
+</div><div id="wmd-preview-section-9193" class="wmd-preview-section preview-content"></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
