@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><title>HTTP接口防止非法调用解决方案</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-104" class="wmd-preview-section preview-content">
+
+<p></p>
+
+</div><div id="wmd-preview-section-2760" class="wmd-preview-section preview-content">
+
+<h2 id="http接口防止非法调用解决方案">HTTP接口防止非法调用解决方案</h2>
+
+<blockquote>
+  <p>网上也有类似的文章《<a href="http://blog.csdn.net/5iasp/article/details/8576014" target="_blank">关于http接口防止非法调用的设计方案</a>》，这里记录下我一直使用的解决方法。</p>
+</blockquote>
+
+<p>我们也假设有这样一个接口: <br>
+如 <a href="http://www.a.com/getBlog.jsp?uid=12" target="_blank">如 http://www.a.com/getBlog.jsp?uid=12 </a></p>
+
+<p>我也是加了一个校验参数，同时增加了防止修改URL的功能。上述的URL最终会成为这样一串字符:<a href="http://www.a.com/getBlog.jsp?uid=12&amp;seed=xxxx&amp;val=xxxxx" target="_blank">http://www.a.com/getBlog.jsp?uid=12&amp;seed=xxxx&amp;val=xxxxx</a></p>
+
+<p><strong>其中<code>val</code>是校验参数,<code>seed</code>是一个随机的盐值</strong></p>
+
+<p><code>seed</code>产生，调用一个产生随机数的函数:</p></div><div id="wmd-preview-section-1607" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs actionscript"><span class="hljs-comment line-number">1.</span><span class="hljs-comment">/**<br><span class="hljs-comment line-number">2.</span> * 获取随机值<br><span class="hljs-comment line-number">3.</span> */</span><br><span class="hljs-comment line-number">4.</span><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSeed</span><span class="hljs-params">()</span><br><span class="hljs-comment line-number">5.</span></span>{<br><span class="hljs-comment line-number">6.</span><span class="hljs-keyword">return</span> substr(sha1(mt_rand()), <span class="hljs-number">0</span>,<span class="hljs-number">22</span>);<br><span class="hljs-comment line-number">7.</span>}<br></code></pre>
+
+<p><code>val</code>的产生则是对整个URL进行MD5加密，包括了<code>seed</code>参数。</p></div><div id="wmd-preview-section-2702" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span><span class="hljs-variable">$url</span>=<span class="hljs-string">"http://www.a.com/getBlog.jsp?uid=12"</span>;<br><span class="hljs-comment line-number">2.</span><span class="hljs-variable">$url</span>.=<span class="hljs-string">"&amp;seed="</span>.<span class="hljs-variable">$seed</span>;<br><span class="hljs-comment line-number">3.</span><span class="hljs-variable">$val</span>=md5(<span class="hljs-variable">$url</span>.<span class="hljs-string">"Q2Vl288HfXxA77"</span>);//盐值<br><span class="hljs-comment line-number">4.</span><span class="hljs-variable">$url</span>.=<span class="hljs-string">"&amp;val="</span>.<span class="hljs-variable">$val</span>;<br></code></pre>
+
+<p>对于URL的加密的好处在于:不加密具体的字段，跟业务逻辑就没有关系，完全适用各种环境。而且保证了URL不被串改的可能。</p>
+
+<p>服务器验证:</p>
+
+</div><div id="wmd-preview-section-2961" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint with-line-number hljs-dark"><code class="hljs xquery"><span class="hljs-comment line-number">1.</span><span class="hljs-keyword">function</span> checkUrl(<span class="hljs-variable">$url</span>)<br><span class="hljs-comment line-number">2.</span>{<br><span class="hljs-comment line-number">3.</span>// 读取val参数值。<br><span class="hljs-comment line-number">4.</span>parse_str(<span class="hljs-variable">$url</span>);<br><span class="hljs-comment line-number">5.</span>// 截取val参数之前的字符<br><span class="hljs-comment line-number">6.</span><span class="hljs-variable">$part</span>_url = str_replace(<span class="hljs-string">'&amp;val='</span> . <span class="hljs-variable">$val</span>, <span class="hljs-string">''</span>, <span class="hljs-variable">$url</span>);<br><span class="hljs-comment line-number">7.</span>// md5计算产生server_val<br><span class="hljs-comment line-number">8.</span><span class="hljs-variable">$server</span>_val = md5(<span class="hljs-variable">$part</span>_url . <span class="hljs-string">"Q2Vl288HfXxA77"</span>);<br><span class="hljs-comment line-number">9.</span>return <span class="hljs-variable">$val</span> == <span class="hljs-variable">$server</span>_val;<br><span class="hljs-comment line-number">10.</span>}<br></code></pre>
+
+<p>其实这里还有一个问题，那就是这个URL可以一直被使用。最好应该一个URL只被使用一次，或者可以在一定的时间内使用。我这里有两个解决方法:</p>
+
+<ol><li rel="1">增加一个时间戳，服务器验证在一定时间内这个URL有效。比如一个小时。超出之后该URL就失效。</li>
+<li rel="2">把val存储到数据库中。每次拿到val先数据库查询，如果查询到说明这个URL已经被使用过。否则处理这个请求。最后把val存储起来。再然后设置一个定时任务。比如每隔一天(或一周)清空一次数据库。这样在用户这边看起来，URL只能被使用一次。即使被攻击，一天（或一周）也只能攻击一次。</li>
+</ol>
+
+<p>以上有不对之处、或有更好的方式。望指出。避免继续误导他人。</p></div><div id="wmd-preview-section-2812" class="wmd-preview-section preview-content"></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
